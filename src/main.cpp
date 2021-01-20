@@ -19,18 +19,7 @@ struct Point{
 	float y;
 };
 
-typedef struct Element Element;
-struct Element{
-	Point point;
-	Element *suivant;
-};
-
-typedef struct List List;
-struct List{
-	Element *premier;
-};
-
-void ligne(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor couleur){
+void ligne(float x0, float y0, float x1, float y1, TGAImage &image, TGAColor couleur){
 	bool steep = false;
 	if(std::abs(x0-x1) < std::abs(y0-y1)){
 		std::swap(x0,y0);
@@ -67,36 +56,59 @@ void triangle(int x0, int y0, int x1, int y1, int x2, int y2, TGAImage &image, T
 }
 
 void lecture(string name,TGAImage &image){
-        List liste;
         string ligne, mot;
         int cpt = -1;
-        float x,y,z;
+        int cpt2 = -1;
+        int pt = -1;
+        int pt2 = -1;
+        float x,y;
         
         //Lecture fichier
-        ifstream flux(name);
-        if(flux){
-           while(getline(flux,ligne)){
+        vector<Point> points(0);
+        ifstream flux2(name);
+        Point point;
+        
+        if(flux2){
+           while(getline(flux2,ligne)){
            	 istringstream iss(ligne);
 	         while(getline(iss,mot,' ')){
-	         	cout << mot << endl;
-	       	//if(mot == "v")	cpt = 0;
-	       	if(cpt == 0)	cpt = 1;
-	       	if(cpt == 1){
-	       		x = stof(mot);
-	       		cout << x << endl;
-	       		cpt = 2;
+	       	if(mot == "v")	cpt = 0;	//On détecte un point
+	       	else{
+		       	if(cpt == 0){			//On récupère le x
+		       		x = stof(mot);
+		       		cpt = 1;
+		       	}
+		       	else{
+			       	if(cpt == 1){			//On récupère le y
+			       		y = stof(mot);
+			       		cpt = -1;
+			       		if(x < 0)	x = x*(-1);
+			       		if(y < 0)	y = y*(-1);
+			       		x = x*width;
+			       		y = y*height;
+				       	point.x = x;
+				      		point.y = y;
+				      		points.push_back(point);
+				      		image.set(x,y,white);
+			       	}
+		       	}
 	       	}
-	       	if(cpt == 2){
-	       		y = stof(mot);
-	       		cout << y << endl;
-	       		cpt = 3;
-	       	}
-	       	if(cpt == 3){
-	       		z = stof(mot);
-	       		cout << z << endl;
-	       		cpt = -1;
-	       		cout << "Ajout point:" << x << y << z << endl;
-	       	}
+	         }
+	         if(mot == "f") cpt2 = 0;			//On détecte un vecteur
+	         else{
+	         	if(cpt2 == 0){				//On récupère le premier point
+	         		getline(iss,mot,'/');
+	         		pt = stoi(mot);
+	         		cpt2 = 1;
+	         	}
+	         	else{
+	         		if(cpt2 == 1){			//On récupère le second point
+	         			getline(iss,mot,'/');
+	         			pt2 = stoi(mot);
+	         			//ligne(points[pt].x, points[pt].y, points[pt2].x, points[pt2].y, image, white);
+	         			cpt2 = -1;
+	         		}
+	         	}
 	         }
            }
         }
@@ -108,8 +120,8 @@ void lecture(string name,TGAImage &image){
 
 int main(){
 	TGAImage image(width, height, TGAImage::RGB);
-	image.write_tga_file("img/test.tga");
 	lecture("/home/maeva/Bureau/M1/S2/3D/render3d/ressources/african_head/african_head.obj",image);
+	image.write_tga_file("img/test.tga");
 	return 0;
 }
 
