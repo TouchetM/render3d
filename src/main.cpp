@@ -75,17 +75,13 @@ void lecture(string name,TGAImage &image){
 	       	if(mot == "v")	cpt = 0;	//On détecte un point
 	       	else{
 		       	if(cpt == 0){			//On récupère le x
-		       		x = stof(mot);
+		       		x = (stof(mot)+1)*(width/2);
 		       		cpt = 1;
 		       	}
 		       	else{
 			       	if(cpt == 1){			//On récupère le y
-			       		y = stof(mot);
+			       		y = (stof(mot)+1)*(height/2);
 			       		cpt = -1;
-			       		if(x < 0)	x = x*(-1);
-			       		if(y < 0)	y = y*(-1);
-			       		x = x*width;
-			       		y = y*height;
 				       	point.x = x;
 				      		point.y = y;
 				      		points.push_back(point);
@@ -98,13 +94,13 @@ void lecture(string name,TGAImage &image){
 	         else{
 	         	if(cpt2 == 0){				//On récupère le premier point
 	         		getline(iss,mot,'/');
-	         		pt = stoi(mot);
+	         		pt = stoi(mot) -1;
 	         		cpt2 = 1;
 	         	}
 	         	else{
 	         		if(cpt2 == 1){			//On récupère le second point
 	         			getline(iss,mot,'/');
-	         			pt2 = stoi(mot);
+	         			pt2 = stoi(mot) -1;
 	         			//ligne(points[pt].x, points[pt].y, points[pt2].x, points[pt2].y, image, white);
 	         			cpt2 = -1;
 	         		}
