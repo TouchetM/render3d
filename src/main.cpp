@@ -73,12 +73,11 @@ void tri(int tab[][3]){
 }
 
 void fill_triangle(int x, int y, TGAImage &image, TGAColor couleur){
-	if((x > width) || (x < 0) || (y > height) || (y < 0))	return;
+	if((x >= width) || (x < 0) || (y >= height) || (y < 0))	return;
 	if(color[x][y] == 1)	return;
 	
 	image.set(x,y,couleur);
 	color[x][y] = 1;
-	cout << "On colore " << x << "," << y << endl;
 	
 	fill_triangle(x-1,y,image,couleur);
 	fill_triangle(x+1,y,image,couleur);
@@ -169,8 +168,7 @@ void lecture(string name,TGAImage &image){
 			 		      if(cpt2 == 2){
 			 		        getline(iss2,mot,'/');
 			 			pt3 = stoi(mot) -1;
-			 			triangle(points[pt].x, points[pt].y, points[pt2].x, 
-			 				 points[pt2].y, points[pt3].x, points[pt3].y, image, white);
+			 			//triangle(points[pt].x, points[pt].y, points[pt2].x,points[pt2].y, points[pt3].x, points[pt3].y, image, white);
 			 			cpt2 = -1;
 			 		      }
 			 		}
@@ -187,8 +185,9 @@ void lecture(string name,TGAImage &image){
 
 int main(){
 	TGAImage image(width, height, TGAImage::RGB);
-	//lecture("/home/maeva/Bureau/Projets/M1 S2/3D/render3d/ressources/african_head/african_head.obj",image);
-	triangle(100,50,300,700,500,750,image,red);
+	lecture("/home/maeva/Bureau/Projets/M1 S2/3D/render3d/ressources/african_head/african_head.obj",image);
+	triangle(537,515,537,511,539,558,image,red);
+
 	image.write_tga_file("img/test.tga");
 	return 0;
 }
