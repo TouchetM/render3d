@@ -20,6 +20,12 @@ struct Point{
 	int y;
 };
 
+struct Vecteur{
+	double x;
+	double y;
+	double z;
+};
+
 void ligne(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor couleur){
 	bool steep = false;
 	if(std::abs(x0-x1) < std::abs(y0-y1)){
@@ -72,17 +78,67 @@ void tri(int tab[][3]){
 	}
 }
 
-void fill_triangle(int x, int y, TGAImage &image, TGAColor couleur){
+Vecteur cross(const Vecteur &v1, const Vecteur &v2){
+	Vecteur v;
+	v.x = v1.y*v2.z - v1.z*v2.y;
+	v.y = v1.z*v2.x - v1.x*v2.z;
+	v.z = v1.x*v2.y - v1.y*v2.x;
+	return v;
+}
+
+int droite(int x0, int y0, int x1, int y1, int x2, int y2){
+	if((x1 == x2) && (y1 == y2))	return 1;
+	if((x0 == x1) && (y0 == y1))	return 2;
+	if((x0 == x2) && (y0 == y2))	return 2;
+	return -1;
+}
+
+bool appartient_droite(int x0, int y0, int x1, int y1, int x, int y){
+	Vecteur v1, v2;
+	v1.x = x  - x0;	v1.y = y  - y0;
+	v2.x = x1 - x;		v2.y = y1 - y;
+	
+	if(v1.x*v2.y - v1.y*v2.x != 0)	return false;
+	if((v1.x*v2.x + v1.y*v2.y < 0) || (v1.x*v1.x + v1.y*v1.y < 0))	return false;
+	cout << "Le point " << x << "," << y << " appartient à la droite" << endl;
+	return true;
+
+}
+
+bool appartient(int x0, int y0, int x1, int y1, int x2, int y2, int x, int y){
+	int verif = droite(x0,y0,x1,y1,x2,y2);
+	if(verif){
+		if(verif == 1)	return appartient_droite(x0,y0,x1,y1,x,y);
+		if(verif == 2)	return appartient_droite(x1,y1,x2,y2,x,y);
+	}
+	Vecteur v1,v2,u;
+	
+	v1.x = x2 - x0;
+	v1.y = x1 - x0;
+	v1.z = x0 - x;
+	v2.x = y2 - y0;
+	v2.y = y1 - y0;
+	v2.z = y0 - y;
+	
+	u = cross(v1,v2);
+	if(std::abs(u.z)<1)	return true;
+	if( (1.f-(u.x+u.y) <0) || (u.y/u.z <0) || (u.x/u.z <0))	return true;
+	cout << "Le point " << x << "," << y << " n'appartient pas au triangle" << endl;
+	return false;
+}
+
+void fill_triangle(int x0, int y0, int x1, int y1, int x2, int y2, int x, int y, TGAImage &image, TGAColor couleur){
 	if((x >= width) || (x < 0) || (y >= height) || (y < 0))	return;
+	if(!appartient(x0,y0,x1,y1,x2,y2,x,y))	return;
 	if(color[x][y] == 1)	return;
 	
 	image.set(x,y,couleur);
 	color[x][y] = 1;
 	
-	fill_triangle(x-1,y,image,couleur);
-	fill_triangle(x+1,y,image,couleur);
-	fill_triangle(x,y-1,image,couleur);
-	fill_triangle(x,y+1,image,couleur);
+	fill_triangle(x0,y0,x1,y1,x2,y2,x-1,y,image,couleur);
+	fill_triangle(x0,y0,x1,y1,x2,y2,x+1,y,image,couleur);
+	fill_triangle(x0,y0,x1,y1,x2,y2,x,y-1,image,couleur);
+	fill_triangle(x0,y0,x1,y1,x2,y2,x,y+1,image,couleur);
 }
 
 void remplir(int x0, int y0, int x1, int y1, int x2, int y2, TGAImage &image, TGAColor couleur){
@@ -99,13 +155,16 @@ void remplir(int x0, int y0, int x1, int y1, int x2, int y2, TGAImage &image, TG
 	int x = (coord[0][0] + coord[0][1] + coord[0][2])/3;
 	int y = (coord[1][0] + coord[1][1] + coord[1][2])/3; 
 	
+	cout << "Milieu triange: " << x << "," << y << endl;
+	
 	image.set(x,y,couleur);
-	fill_triangle(x,y,image,couleur);
+	fill_triangle(x0,y0,x1,y1,x2,y2,x,y,image,couleur);
 	
 }
 
 
 void triangle(int x0, int y0, int x1, int y1, int x2, int y2, TGAImage &image, TGAColor couleur){
+	cout << "Triangle (" << x0 << "," << y0 << "), (" << x1 << "," << y1 << "), (" << x2 << "," << y2 << ")" << endl;
 	ligne(x0,y0,x1,y1,image,couleur);
 	ligne(x1,y1,x2,y2,image,couleur);
 	ligne(x0,y0,x2,y2,image,couleur);
@@ -168,7 +227,7 @@ void lecture(string name,TGAImage &image){
 			 		      if(cpt2 == 2){
 			 		        getline(iss2,mot,'/');
 			 			pt3 = stoi(mot) -1;
-			 			//triangle(points[pt].x, points[pt].y, points[pt2].x,points[pt2].y, points[pt3].x, points[pt3].y, image, white);
+			 			triangle(points[pt].x, points[pt].y, points[pt2].x,points[pt2].y, points[pt3].x, points[pt3].y, image, white);
 			 			cpt2 = -1;
 			 		      }
 			 		}
@@ -186,8 +245,6 @@ void lecture(string name,TGAImage &image){
 int main(){
 	TGAImage image(width, height, TGAImage::RGB);
 	lecture("/home/maeva/Bureau/Projets/M1 S2/3D/render3d/ressources/african_head/african_head.obj",image);
-	triangle(537,515,537,511,539,558,image,red);
-
 	image.write_tga_file("img/test.tga");
 	return 0;
 }
