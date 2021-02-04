@@ -13,9 +13,9 @@ const TGAColor white = { 255, 255, 255, 255 };
 const TGAColor red = { 255, 0, 0, 255};
 
 struct Point{
-	int num;
 	int x;
 	int y;
+	int z;
 };
 
 struct Vecteur{
@@ -108,20 +108,30 @@ void fill_triangle(int x0, int y0, int x1, int y1, int x2, int y2, TGAImage &ima
 	}
 }
 
-void triangle(int id,int x0, int y0, int x1, int y1, int x2, int y2, TGAImage &image, TGAColor couleur){
+void draw_triangle(int x0, int y0, int z0, int x1, int y1, int z1, int x2, int y2, int z2, TGAImage &image, TGAColor couleur){
+	Vecteur v1,v2;
+	v1.x = x1 - x0;	v2.x = x2 - x0;
+	v1.y = y1 - y0;	v2.y = y2 - y0;
+	v1.z = z1 - z0;	v2.z = z2 - z0;
+	
+	Vecteur n = cross(v1,v2);
+	Vecteur lum;
+	lum.x = 1;
+	lum.y = 1;
+	lum.z = 1;
+	
+	int intensity = n.x*lum.x + n.y*lum.y + n.z*lum.z;	
+	
+	//cout << "Coord: (" << x0 << "," << y0 << "," << z0 << ") , (" << x1 << "," << y1 << "," << z1 << ") , (" << x2 << "," << y2 << "," << z2 << ")" << endl;
+	//cout << "Intensité: " << n.x << "*" << lum.x << " + " << n.y << "*" << lum.y << " + " << n.z << "*" << lum.z << " = " << intensity << endl;
+	
 	fill_triangle(x0,y0,x1,y1,x2,y2,image,TGAColor(rand()%255,rand()%255,rand()%255));
+
 }
 
 void lecture(string name,TGAImage &image){
         string line, mot;
-        int cpt = -1;
-        int cpt2 = -1;
-        int pt = -1;
-        int pt2 = -1;
-        int pt3 = -1;
-        int taille = 0;
-        int id = 0;
-        int x,y;
+        int x,y,z,pt1,pt2,pt3;
         
         //Lecture fichier
         vector<Point> points(0);
@@ -129,53 +139,53 @@ void lecture(string name,TGAImage &image){
         Point point;
         
         if(flux2){
-           while(getline(flux2,line)){
-           	 istringstream iss(line);
-	         while(getline(iss,mot,' ')){
-	       	if(mot == "v")	cpt = 0;	//On détecte un point
-	       	else{
-		       	if(cpt == 0){			//On récupère le x
-		       		x = (stof(mot)+1)*300+100;
-		       		cpt = 1;
-		       	}
-		       	else{
-			       	if(cpt == 1){			//On récupère le y
-			       		y = (stof(mot)+1)*300+100;
-			       		cpt = -1;
-				       	point.x = x;
-				      		point.y = y;
-				      		points.push_back(point);
-				      		image.set(x,y,white);
-				      		taille++;
-			       	}
-		       	}
-	       	}
-			 if(mot == "f") cpt2 = 0;			//On détecte un vecteur
-			 else{
-			 	istringstream iss2(mot);
-			 	if(cpt2 == 0){	    			//On récupère le premier point
-			 		getline(iss2,mot,'/');
-			 		pt = stoi(mot) -1;
-			 		cpt2 = 1;
-			 	}
-			 	else{
-			 		if(cpt2 == 1){			//On récupère le second point
-			 			getline(iss2,mot,'/');
-			 			pt2 = stoi(mot) -1;
-			 			cpt2 = 2;
-			 		}
-			 		else{
-			 		      if(cpt2 == 2){
-			 		        getline(iss2,mot,'/');
-			 			pt3 = stoi(mot) -1;
-			 			triangle(id,points[pt].x, points[pt].y, points[pt2].x,points[pt2].y, points[pt3].x, points[pt3].y, image, white);
-			 			cpt2 = -1;
-			 			id++;
-			 		      }
-			 		}
-			 	}
-			 }
-	   	   }
+           while(flux2){
+         	flux2 >> mot;
+           	if(mot == "v"){
+           		//On récupère le x
+           		flux2 >> mot;
+           		x = (stof(mot)+1)*300+100;
+           		
+           		//On récupère le y
+           		flux2 >> mot;
+           		y = (stof(mot)+1)*300+100;
+           		
+           		//On récupère le z
+           		flux2 >> mot;
+           		z = (stof(mot)+1)*300+100;
+           		
+           		//On enregistre le point
+           		point.x = x;
+           		point.y = y;
+           		point.z = z;
+           		points.push_back(point);
+           		
+           		image.set(x,y,white);
+           		
+           	}
+           	if(mot == "f"){
+           		
+           		//Premier point
+           		flux2 >> mot;
+           		istringstream iss1(mot);
+           		getline(iss1,mot,'/');
+			pt1 = stoi(mot) -1;
+			
+			//Deuxième point
+			flux2 >> mot;
+			istringstream iss2(mot);
+           		getline(iss2,mot,'/');
+			pt2 = stoi(mot) -1;
+			
+			//Troisième point
+			flux2 >> mot;
+			istringstream iss3(mot);
+           		getline(iss3,mot,'/');
+			pt3 = stoi(mot) -1;
+			
+			//On dessine le triangle
+			draw_triangle(points[pt1].x, points[pt1].y, points[pt1].z, points[pt2].x,points[pt2].y, points[pt2].z, points[pt3].x, points[pt3].y, points[pt3].z, image, white);
+           	}
            }
         }
         else{
