@@ -115,17 +115,18 @@ void draw_triangle(int x0, int y0, int z0, int x1, int y1, int z1, int x2, int y
 	v1.z = z1 - z0;	v2.z = z2 - z0;
 	
 	Vecteur n = cross(v1,v2);
+	float longueur = sqrt((n.x*n.x)+(n.y*n.y)+(n.z*n.z));
+	n.x = n.x/longueur;
+	n.y = n.y/longueur;
+	n.z = n.z/longueur;
+	
 	Vecteur lum;
-	lum.x = 1;
-	lum.y = 1;
+	lum.x = lum.y = 0;
 	lum.z = 1;
 	
-	int intensity = n.x*lum.x + n.y*lum.y + n.z*lum.z;	
+	float intensity = n.x*lum.x + n.y*lum.y + n.z*lum.z;	
 	
-	//cout << "Coord: (" << x0 << "," << y0 << "," << z0 << ") , (" << x1 << "," << y1 << "," << z1 << ") , (" << x2 << "," << y2 << "," << z2 << ")" << endl;
-	//cout << "Intensité: " << n.x << "*" << lum.x << " + " << n.y << "*" << lum.y << " + " << n.z << "*" << lum.z << " = " << intensity << endl;
-	
-	fill_triangle(x0,y0,x1,y1,x2,y2,image,TGAColor(rand()%255,rand()%255,rand()%255));
+	if(intensity > 0)	fill_triangle(x0,y0,x1,y1,x2,y2,image,TGAColor(intensity*255,intensity*255,intensity*255,255));
 
 }
 
@@ -159,8 +160,6 @@ void lecture(string name,TGAImage &image){
            		point.y = y;
            		point.z = z;
            		points.push_back(point);
-           		
-           		image.set(x,y,white);
            		
            	}
            	if(mot == "f"){
