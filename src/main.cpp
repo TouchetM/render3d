@@ -108,7 +108,7 @@ void fill_triangle(int x0, int y0, int x1, int y1, int x2, int y2, TGAImage &ima
 	}
 }
 
-void draw_triangle(int x0, int y0, int z0, int x1, int y1, int z1, int x2, int y2, int z2, TGAImage &image, TGAColor couleur){
+void draw_triangle(int x0, int y0, int z0, int x1, int y1, int z1, int x2, int y2, int z2, TGAImage &image){
 	Vecteur v1,v2;
 	v1.x = x1 - x0;	v2.x = x2 - x0;
 	v1.y = y1 - y0;	v2.y = y2 - y0;
@@ -129,6 +129,7 @@ void draw_triangle(int x0, int y0, int z0, int x1, int y1, int z1, int x2, int y
 	if(intensity > 0)	fill_triangle(x0,y0,x1,y1,x2,y2,image,TGAColor(intensity*255,intensity*255,intensity*255,255));
 
 }
+
 
 void lecture(string name,TGAImage &image){
         string line, mot;
@@ -183,7 +184,7 @@ void lecture(string name,TGAImage &image){
 			pt3 = stoi(mot) -1;
 			
 			//On dessine le triangle
-			draw_triangle(points[pt1].x, points[pt1].y, points[pt1].z, points[pt2].x,points[pt2].y, points[pt2].z, points[pt3].x, points[pt3].y, points[pt3].z, image, white);
+			draw_triangle(points[pt1].x, points[pt1].y, points[pt1].z, points[pt2].x,points[pt2].y, points[pt2].z, points[pt3].x, points[pt3].y, points[pt3].z, image);
            	}
            }
         }
