@@ -109,9 +109,8 @@ void fill_triangle(Point pt1, Point pt2, Point pt3, TGAImage &image, TGAColor co
 	}
 }
 
-void draw_triangle(Point pt1, Point pt2, Point pt3, vector<Point> coord_textures, TGAImage &image){
+void draw_triangle(Point pt1, Point pt2, Point pt3, TGAImage &image){
 	
-	//Lumière
 	Vecteur v1,v2;
 	v1.x = pt2.x - pt1.x;	v2.x = pt3.x - pt1.x;
 	v1.y = pt2.y - pt1.y;	v2.y = pt3.y - pt1.y;
@@ -129,12 +128,6 @@ void draw_triangle(Point pt1, Point pt2, Point pt3, vector<Point> coord_textures
 	
 	float intensity = n.x*lum.x + n.y*lum.y + n.z*lum.z;	
 	
-	//Textures
-	//TGAImage textures(width, height, TGAImage::RGB);
-	//textures.read_tga_file("/home/maeva/Bureau/Projets/M1 S2/3D/render3d/ressources/african_head/african_head_diffuse.tga");
-	//textures.get(coord_textures[pt1.num_texture].x, coord_textures[pt1.num_texture].y);
-	
-	//Dessin triangle
 	if(intensity > 0)	fill_triangle(pt1,pt2,pt3,image,TGAColor(intensity*255,intensity*255,intensity*255,255));
 
 }
@@ -144,6 +137,11 @@ void lecture(string name, TGAImage &image){
         string line, mot;
         int x,y,z,pt1,pt2,pt3,num;
         double x2,y2,z2;
+        
+        //Pour lire textures
+        TGAColor couleur;
+        TGAImage textures(width, height, TGAImage::RGB);
+	textures.read_tga_file("../ressources/african_head/african_head_diffuse.tga");
         
         //Lecture fichier
         vector<Point> points(0);
@@ -230,8 +228,18 @@ void lecture(string name, TGAImage &image){
 			num = stoi(mot) - 1;
 			points[pt3].num_texture = num;
 			
+			//On récupère la texture
+			/*int j = pt1;
+			for(int i= 0; i < 3; i++){
+				couleur = textures.get(coord_textures[points[j].num_texture].x, coord_textures[points[j].num_texture].y);
+				image.set(points[j].x,points[j].y,couleur);
+				if(j == pt1)	j = pt2;
+				if(j == pt2) 	j = pt3;
+			}
+			*/
+			
 			//On dessine le triangle
-			draw_triangle(points[pt1],points[pt2],points[pt3], coord_textures, image);
+			draw_triangle(points[pt1],points[pt2],points[pt3], image);
            	}
            }
         }
